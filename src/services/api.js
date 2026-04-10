@@ -1,4 +1,35 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "/api/hotel").replace(/\/$/, "");
+function normalizeApiBaseUrl(rawValue) {
+  if (!rawValue) {
+    return "/api/hotel";
+  }
+
+  let value = rawValue.trim();
+  if (!value) {
+    return "/api/hotel";
+  }
+
+  if (!/^https?:\/\//i.test(value) && !value.startsWith("/")) {
+    value = `https://${value}`;
+  }
+
+  value = value.replace(/\/$/, "");
+
+  if (value === "/api" || value.endsWith("/api")) {
+    return `${value}/hotel`;
+  }
+
+  if (value === "/api/hotel" || value.endsWith("/api/hotel")) {
+    return value;
+  }
+
+  if (value.startsWith("/")) {
+    return `${value}/api/hotel`;
+  }
+
+  return `${value}/api/hotel`;
+}
+
+const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL ?? "/api/hotel");
 
 async function request(path, options = {}) {
   const headers = options.body ? { "Content-Type": "application/json" } : {};
